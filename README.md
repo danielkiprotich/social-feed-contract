@@ -1,88 +1,51 @@
-# Patient Record Access System
+# Social Feed ICP
 
-## Overview
+This is an Internet Computer canister that implements a blogging platform. Users can create posts, search for posts, view comments on a post, and interact with user accounts. The code is written in Rust and utilizes the Candid interface for interaction with the Internet Computer.
 
-This ICP smart contract allows Patient to manage access to their medical History to doctors and hospitals. It manages doctors and their assignments to hospitals, and patient-doctor interactions. It has functions to update patient history and assign patients to doctors. The error handling is expanded to cover unauthorized access and payload validation issues. The Candid interface is updated to reflect the changes in functionality.
+Here is a breakdown of the key components and functionalities:
 
-## 1. Struct Definitions
+1. **Type Aliases:**
+   - `Memory`: Represents a virtual memory type, specifically `VirtualMemory<DefaultMemoryImpl>`.
+   - `IdCell`: A cell for holding a `u64` value within the virtual memory.
 
-### Doctor
+2. **Struct Definitions:**
+   - `Post`: Represents a blog post with fields such as `id`, `title`, `content`, `user_id`, `comments`, and `likes`.
+   - `User`: Represents a user with fields like `id`, `name`, `phone`, `password`, and `post_ids`.
+   - `Comment`: Represents a comment with fields `creator_id`, `post_id`, and `content`.
 
-- **Attributes:**
-  - `id`, `name`, `password`, `hospital_id`, `patient_ids`.
-- Represents information about a doctor involved in the blood donation drive.
+3. **Trait Implementations:**
+   - `Storable` and `BoundedStorable` are implemented for `Post` and `User`. These traits define methods for converting the struct to and from bytes.
 
-### PatientHistoryUpdate
+4. **Thread-Local Static Variables:**
+   - `MEMORY_MANAGER`: Manages virtual memory for the canister.
+   - `ID_COUNTER`: Tracks global IDs for posts and users.
+   - `POST_STORAGE`: `StableBTreeMap` for storing posts.
+   - `USER_STORAGE`: `StableBTreeMap` for storing users.
 
-- **Attributes:**
-  - `doctor_id`, `patient_id`, `doctor_password`, `new_history`.
-- Represents a payload structure for updating a patient's medical history.
+5. **Payload Structs:**
+   - `UserPayload`, `PostPayload`, `EditPostPayload`, `AddComment`, `CommentPayload`, `EditUserPayload`, and `AccessPayload`: Data structures used in update functions to provide information for creating or updating users, posts, comments, etc.
 
-### EditDoctor
+6. **Update Functions:**
+   - `add_post`: Creates a new post.
+   - `get_all_posts`: Retrieves all posts.
+   - `get_post_by_id`: Retrieves a specific post by ID.
+   - `search_post_by_title`: Searches for posts by title.
+   - `get_post_comments`: Retrieves comments for a specific post.
+   - `edit_post`: Edits the content of a post.
+   - `add_user`: Creates a new user.
+   - `get_all_users`: Retrieves all users.
+   - `get_user_by_name`: Retrieves users by name.
+   - `get_user_by_id`: Retrieves a specific user by ID.
+   - `edit_user`: Edits user information.
+   - `comment_on_post`: Adds a comment to a post.
 
-- **Attributes:**
-  - `name`, `doctor_id`, `hospital_id`, `doctor_password`, `hospital_password`.
-- Represents a payload structure for editing doctor attributes.
+7. **Error Handling:**
+   - `Error` enum: Represents different types of errors that can occur during execution, such as `NotFound`, `AlreadyInit`, `InvalidPayload`, and `Unauthorized`.
 
-### DoctorPayload
+8. **Candid Interface Export:**
+   - `ic_cdk::export_candid!()`: Generates the Candid interface for this canister.
 
-- **Attributes:**
-  - `name`, `hospital_id`, `password`, `hospital_password`.
-- Represents a payload structure for adding a new doctor.
-
-## 2. Additional Storage
-
-- Introduces a new `DOCTOR_STORAGE` using `StableBTreeMap` to store doctor-related information.
-
-## 3. Update Functions
-
-### assign_patient_to_doctor
-
-- Assigns a patient to a doctor and adds the patient to the doctor's hospital.
-
-### update_patient_history
-
-- Updates a patient's medical history by a doctor.
-
-### add_doctor
-
-- Adds a new doctor to the system.
-
-### add_doctor_to_hospital
-
-- Helper function to add a doctor to a hospital.
-
-### edit_doctor
-
-- Edits doctor attributes and assigns the doctor to a hospital.
-
-## 4. Query Functions
-
-### get_doctor_by_id
-
-- Retrieves a doctor by ID.
-
-### get_patient_info
-
-- Retrieves patient information by patient ID and doctor password.
-
-## 5. Helper Functions
-
-### add_doctor_to_storage
-
-- Helper function to add a doctor to storage.
-
-### add_patient_to_hospital
-
-- Helper function to add a patient to a hospital.
-
-## 6. Error Handling
-
-- Extends the `Error` enum with new variants (`AlreadyInit`, `Unauthorized`).
-
-## 7. Candid Interface
-
-- Exports the Candid interface for seamless interaction with the Internet Computer.
+It uses the `validator` crate for payload validation and the `serde` crate for serialization and deserialization. Additionally, the `ic_cdk` and `candid` crates are used for interacting with the Internet Computer platform and generating the Candid interface, respectively.
 
 ## ICP
 
