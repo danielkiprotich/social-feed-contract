@@ -1,0 +1,97 @@
+type AccessPayload = record {
+  patient_id : nat64;
+  doctor_password : text;
+  doctor_id : nat64;
+};
+type AddPatientToDoctor = record {
+  patient_id : nat64;
+  patient_password : text;
+  doctor_password : text;
+  doctor_id : nat64;
+};
+type Doctor = record {
+  id : nat64;
+  hospital_id : nat64;
+  password : text;
+  name : text;
+  patient_ids : vec nat64;
+};
+type DoctorPayload = record {
+  hospital_id : nat64;
+  password : text;
+  name : text;
+  hospital_password : text;
+};
+type EditDoctor = record {
+  hospital_id : nat64;
+  name : text;
+  doctor_password : text;
+  hospital_password : text;
+  doctor_id : nat64;
+};
+type EditHospitalPayload = record {
+  hospital_id : nat64;
+  password : text;
+  name : text;
+};
+type EditPatientPayload = record {
+  patient_id : nat64;
+  password : text;
+  name : text;
+};
+type Error = variant {
+  InvalidPayload : record { msg : text };
+  NotFound : record { msg : text };
+  Unauthorized : record { msg : text };
+  AlreadyInit : record { msg : text };
+};
+type Hospital = record {
+  id : nat64;
+  doctors_ids : vec nat64;
+  password : text;
+  name : text;
+  patients_ids : vec nat64;
+  address : text;
+};
+type HospitalPayload = record {
+  city : text;
+  password : text;
+  name : text;
+  address : text;
+};
+type Patient = record {
+  id : nat64;
+  doctors_ids : vec nat64;
+  password : text;
+  name : text;
+  history : text;
+  hospitals_ids : vec nat64;
+};
+type PatientHistoryUpdate = record {
+  patient_id : nat64;
+  doctor_password : text;
+  doctor_id : nat64;
+  new_history : text;
+};
+type PatientPayload = record { password : text; name : text; history : text };
+type Result = variant { Ok : Doctor; Err : Error };
+type Result_1 = variant { Ok : Hospital; Err : Error };
+type Result_2 = variant { Ok : Patient; Err : Error };
+type Result_3 = variant { Ok : text; Err : Error };
+type Result_4 = variant { Ok : vec Hospital; Err : Error };
+service : {
+  add_doctor : (DoctorPayload) -> (Result);
+  add_hospital : (HospitalPayload) -> (Result_1);
+  add_patient : (PatientPayload) -> (Result_2);
+  assign_patient_to_doctor : (AddPatientToDoctor) -> (Result_3);
+  edit_doctor : (EditDoctor) -> (Result_3);
+  edit_hospital : (EditHospitalPayload) -> (Result_1);
+  edit_patient : (EditPatientPayload) -> (Result_2);
+  get_all_hospitals : () -> (Result_4) query;
+  get_doctor_by_id : (nat64) -> (Result) query;
+  get_hospital_by_id : (nat64) -> (Result_1) query;
+  get_hospital_by_name : (text) -> (Result_4) query;
+  get_patient : (nat64) -> (Result_2) query;
+  get_patient_info : (AccessPayload) -> (Result_2) query;
+  update_patient_history : (PatientHistoryUpdate) -> (Result_3);
+}

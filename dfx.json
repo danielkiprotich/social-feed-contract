@@ -1,0 +1,28 @@
+{
+  "canisters": {
+    "social_feeds_backend": {
+      "candid": "src/social_feeds_backend/social_feeds_backend.did",
+      "package": "social_feeds_backend",
+      "type": "rust"
+    },
+    "social_feeds_frontend": {
+      "dependencies": ["social_feeds_backend"],
+      "frontend": {
+        "entrypoint": "src/social_feeds_frontend/src/index.html"
+      },
+      "source": [
+        "src/social_feeds_frontend/assets",
+        "dist/social_feeds_frontend/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "src/social_feeds_backend",
+]
+resolver = "2"
