@@ -1,0 +1,57 @@
+type AddComment = record {
+  post_id : nat64;
+  user_id : nat64;
+  user_password : text;
+  comment : text;
+};
+type Comment = record { post_id : nat64; content : text; creator_id : nat64 };
+type EditPostPayload = record {
+  post_id : nat64;
+  content : text;
+  user_id : nat64;
+  user_password : text;
+};
+type EditUserPayload = record { password : text; name : text; user_id : nat64 };
+type Error = variant {
+  InvalidPayload : record { msg : text };
+  NotFound : record { msg : text };
+  Unauthorized : record { msg : text };
+  AlreadyInit : record { msg : text };
+};
+type Post = record {
+  id : nat64;
+  title : text;
+  content : text;
+  user_id : nat64;
+  likes : nat32;
+  comments : vec record { nat64; Comment };
+};
+type PostPayload = record { title : text; content : text; user_id : nat64 };
+type Result = variant { Ok : Post; Err : Error };
+type Result_1 = variant { Ok : User; Err : Error };
+type Result_2 = variant { Ok : text; Err : Error };
+type Result_3 = variant { Ok : vec Post; Err : Error };
+type Result_4 = variant { Ok : vec User; Err : Error };
+type Result_5 = variant { Ok : vec record { nat64; Comment }; Err : Error };
+type User = record {
+  id : nat64;
+  post_ids : vec nat64;
+  password : text;
+  name : text;
+  phone : text;
+};
+type UserPayload = record { password : text; name : text; phone : text };
+service : {
+  add_post : (PostPayload) -> (Result);
+  add_user : (UserPayload) -> (Result_1);
+  comment_on_post : (AddComment) -> (Result_2);
+  edit_post : (EditPostPayload) -> (Result);
+  edit_user : (EditUserPayload) -> (Result_1);
+  get_all_posts : () -> (Result_3) query;
+  get_all_users : () -> (Result_4) query;
+  get_post_by_id : (nat64) -> (Result) query;
+  get_post_comments : (nat64) -> (Result_5) query;
+  get_user_by_id : (nat64) -> (Result_1) query;
+  get_user_by_name : (text) -> (Result_4) query;
+  search_post_by_title : (text) -> (Result_3) query;
+}

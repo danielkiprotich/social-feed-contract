@@ -170,19 +170,27 @@ fn add_post(payload: PostPayload) -> Result<Post, Error> {
         })
         .expect("Cannot increment Ids");
 
-    let post = Post {
-        id,
-        title: payload.title.clone(),
-        content: payload.content,
-        user_id: payload.user_id,
-        comments: HashMap::new(),
-        likes: 0,
-    };
+    // check is user_id exist
+    match USER_STORAGE.with(|users| users.borrow().get(&payload.user_id)) {
+        Some(_) => {
+            let post = Post {
+                id,
+                title: payload.title.clone(),
+                content: payload.content,
+                user_id: payload.user_id,
+                comments: HashMap::new(),
+                likes: 0,
+            };
 
-    match POST_STORAGE.with(|s| s.borrow_mut().insert(id, post.clone())) {
-        None => Ok(post),
-        Some(_) => Err(Error::InvalidPayload {
-            msg: format!("Could not add post title: {}", payload.title),
+            match POST_STORAGE.with(|s| s.borrow_mut().insert(id, post.clone())) {
+                None => Ok(post),
+                Some(_) => Err(Error::InvalidPayload {
+                    msg: format!("Could not add post title: {}", payload.title),
+                }),
+            }
+        }
+        None => Err(Error::NotFound {
+            msg: format!("user of id: {} not found", id),
         }),
     }
 }
@@ -461,28 +469,13 @@ fn comment_on_post(payload: AddComment) -> Result<String, Error> {
                     };
 
                     let mut new_post = post.clone();
-
-                    let comments = new_post.comments.insert(id, new_comment);
-
-                    // add post to user
-                    match comments {
-                        Some(_) => {
-                            // update comment in storage
-                            // let new_post = Post {
-                            //     comments: post,
-                            //     ..post
-                            // };
-                            match POST_STORAGE
-                                .with(|s| s.borrow_mut().insert(post.id, new_post.clone()))
-                            {
-                                Some(_) => Ok(format!("succesfully added comment")),
-                                None => Err(Error::InvalidPayload {
-                                    msg: format!("Could not update comment"),
-                                }),
-                            }
-                        }
-                        None => Err(Error::NotFound {
-                            msg: format!("Could not create comment"),
+                    // add comment to post
+                    new_post.comments.insert(id, new_comment);
+                    
+                    match POST_STORAGE.with(|s| s.borrow_mut().insert(post.id, new_post.clone())) {
+                        Some(_) => Ok(format!("succesfully added comment")),
+                        None => Err(Error::InvalidPayload {
+                            msg: format!("Could not update comment"),
                         }),
                     }
                 }
